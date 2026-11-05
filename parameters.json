@@ -131,7 +131,7 @@
             "value": []
         },
         "vnetResourceGroupName": {
-            "value": "DC1_group"
+            "value": "RG5"
         },
         "vnetDeploymentName": {
             "value": "vnetaustraliaeastTemplateDeployment1793870546656"
