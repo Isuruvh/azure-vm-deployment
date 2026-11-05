@@ -1,4 +1,4 @@
-name: Deploy Azure VM
+name: Deploy Azure VM 
 
 on:
   workflow_dispatch:
