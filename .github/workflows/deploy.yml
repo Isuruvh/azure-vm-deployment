@@ -6,8 +6,6 @@ on:
   pull_request:
     branches:
       - main, staging
-  schedule:
-    - cron: '30 5,17 * * *'
   workflow_dispatch:
     inputs:
       resource-group:
