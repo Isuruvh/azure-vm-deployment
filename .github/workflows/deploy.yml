@@ -1,4 +1,4 @@
-name: Deploy ARM Template
+name: Deploy ARM Template final
 
 on:
   push:
