@@ -9,7 +9,6 @@ on:
   workflow_dispatch:
     
 
-
 jobs:
   deploy:
     runs-on: windows-latest
@@ -22,7 +21,8 @@ jobs:
           client-id: ${{ secrets.clientId }}
           tenant-id: ${{ secrets.tenantId }}
           subscription-id: ${{ secrets.subscriptionId }}
-          client-secret: ${{ secrets.clientSecret }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: false
 
       - name: Run Azure CLI command
         uses: Azure/CLI@v1
@@ -30,7 +30,13 @@ jobs:
           inlineScript: |
             az account show
             az group list
-
+            
+      - name: Deploy ARM template
+        run: |
+          az deployment group create \
+            --resource-group RG5 \
+            --template-file ./template.json \
+            --parameters ./parameters.json
            
       - name: Deploy ARM template
         uses: azure/arm-deploy@v2
