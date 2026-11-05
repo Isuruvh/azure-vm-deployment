@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - template.json
-      - parameter.json
+      - parameter.json 
       - .github/workflows/deploy.yml
 
 jobs:
@@ -27,5 +27,5 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: RG5
           template: ./template.json
-          parameters: ./parameters.json
+          parameters: ./parameters.json adminPassword=${{ secrets.VM_ADMIN_PASSWORD }}
           deploymentName: github-actions-deployment
