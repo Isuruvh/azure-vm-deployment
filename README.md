@@ -161,6 +161,19 @@ Keep credentials and passwords in GitHub Secrets, never in the template, paramet
 
 The workflow runs on pushes to `main` that change `template.json`, `parameters.json`, or `.github/workflows/deploy.yml`. It does not run for README-only changes. Its Azure deployment name is `github-actions-deployment`, and it uses ARM incremental mode. Incremental mode may update resources with matching names, but it does not delete resources omitted from a deployment. Changing resource names can leave the prior resources in place and create additional ones.
 
+### Deploying a new VM
+
+To create another VM, change the resource names in `parameters.json` and push. Re-running with unchanged names only updates the existing VM.
+
+| Parameter | Change to a new unique value |
+| --- | --- |
+| `virtualMachineName`, `virtualMachineComputerName` | New VM name (the Windows computer name is limited to 15 characters) |
+| `networkInterfaceName` | New NIC name |
+| `publicIpAddressName`, `publicIpAddressId` | New public IP name (keep the two in sync) |
+| `networkSecurityGroupName` | New NSG name |
+
+Optionally change `virtualMachineSize`, `adminUsername`, `location` and similar settings. Leave the VNet parameters as they are so the new VM joins the existing network. Check any `location` change against the fixed VNet and subnet references described below.
+
 ### Successful deployment example
 
 The [latest successful run](https://github.com/Isuruvh/azure-vm-deployment/actions/runs/42112078174) completed both the Azure login and ARM deployment steps. At that run's commit (`9a25d92`), the example configuration deployed VM `FS1` (`Standard_D2ads_v6`) in `australiaeast`, using VNet `vnet-australiaeast-1`, subnet `default`, and resource group `RG5`. The workflow used `azure/login@v1` and `azure/arm-deploy@v1`, passing `VM_ADMIN_PASSWORD` as the secure `adminPassword` parameter.
