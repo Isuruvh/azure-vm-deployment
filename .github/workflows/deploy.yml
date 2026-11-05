@@ -26,7 +26,6 @@ jobs:
       - name: 'Azure Login'
         uses: azure/login@v3
         with:
-          auth-type: IDENTITY
           creds: ${{ secrets.AZURE_CREDENTIALS }}
            
       - name: Deploy ARM template
