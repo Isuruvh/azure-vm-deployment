@@ -10,19 +10,112 @@ Deploy a Windows Server virtual machine and its supporting Azure network resourc
 | `parameters.json` | Deployment values, including VM sizing, names, region, and network settings. |
 | `.github/workflows/deploy.yml` | GitHub Actions workflow that logs into Azure and runs the ARM deployment. |
 
-## Requirements and one-time setup
+## Authentication (read this first)
+
+### Authentication method
+
+GitHub Actions authenticates to Azure as a **Microsoft Entra ID (Azure AD) service principal using a client secret**. The credentials are stored as one JSON secret, `AZURE_CREDENTIALS`, and consumed by the `azure/login@v1` action through its `creds` input. No Azure password or credential is stored in the repository.
+
+| Item | Value used by this repository |
+| --- | --- |
+| Auth type | Service principal with client secret (not OIDC/federated credentials) |
+| Workflow action | `azure/login@v1` with `creds: ${{ secrets.AZURE_CREDENTIALS }}` |
+| Recommended Azure RBAC | `Contributor`, scoped to resource group `RG5` |
+| Secret storage | GitHub repository secrets (**Settings → Secrets and variables → Actions**) |
+
+### 1. Create the service principal
+
+Run in Azure Cloud Shell or a signed-in Azure CLI. Replace `<subscription-id>`; resource group `RG5` must already exist.
+
+```bash
+az ad sp create-for-rbac \
+  --name "github-azure-vm-deployment" \
+  --role contributor \
+  --scopes /subscriptions/<subscription-id>/resourceGroups/RG5 \
+  --sdk-auth
+```
+
+The output looks like this (placeholders shown):
+
+```json
+{
+  "clientId": "<app-client-id>",
+  "clientSecret": "<client-secret>",
+  "subscriptionId": "<subscription-id>",
+  "tenantId": "<tenant-id>",
+  "activeDirectoryEndpointUrl": "https://login.microsoftonline.com",
+  "resourceManagerEndpointUrl": "https://management.azure.com/",
+  "activeDirectoryGraphResourceId": "https://graph.windows.net/",
+  "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/",
+  "galleryEndpointUrl": "https://gallery.azure.com/",
+  "managementEndpointUrl": "https://management.core.windows.net/"
+}
+```
+
+The entire JSON is the value of `AZURE_CREDENTIALS`. The client secret is shown only once. `--sdk-auth` is deprecated in newer Azure CLI versions; if unavailable, omit it and build a JSON object with the keys `clientId`, `clientSecret`, `subscriptionId`, and `tenantId`.
+
+`Contributor` at resource-group scope lets the workflow create and update the VM, NIC, public IP, NSG, and VNet in `RG5`, but not manage access (RBAC) or touch other resource groups.
+
+### 2. Add the GitHub secrets
+
+Add all three under **Settings → Secrets and variables → Actions → New repository secret**, or with the GitHub CLI:
+
+```bash
+gh secret set AZURE_CREDENTIALS --repo Isuruvh/azure-vm-deployment < sp-credentials.json
+gh secret set AZURE_SUBSCRIPTION_ID --repo Isuruvh/azure-vm-deployment --body "<subscription-id>"
+gh secret set VM_ADMIN_PASSWORD --repo Isuruvh/azure-vm-deployment
+```
+
+Delete `sp-credentials.json` once the secret is saved. Running `gh secret set VM_ADMIN_PASSWORD` without `--body` prompts for the value, keeping it out of shell history.
+
+| Secret | Contents | Used by |
+| --- | --- | --- |
+| `AZURE_CREDENTIALS` | Full service-principal JSON | `azure/login@v1` (`creds`) |
+| `AZURE_SUBSCRIPTION_ID` | Subscription GUID; must match `subscriptionId` in `AZURE_CREDENTIALS` | `azure/arm-deploy@v1` (`subscriptionId`) |
+| `VM_ADMIN_PASSWORD` | Windows administrator password meeting Azure complexity rules | `azure/arm-deploy@v1` (`parameters` override for `adminPassword`) |
+
+### 3. How the workflow uses them
+
+From `.github/workflows/deploy.yml`:
+
+```yaml
+- name: Azure Login
+  uses: azure/login@v1
+  with:
+    creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+- name: Deploy ARM Template
+  uses: azure/arm-deploy@v1
+  with:
+    subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    resourceGroupName: RG5
+    template: ./template.json
+    parameters: ./parameters.json adminPassword=${{ secrets.VM_ADMIN_PASSWORD }}
+    deploymentName: github-actions-deployment
+```
+
+- **Login:** `azure/login@v1` signs in as the service principal; later steps run with its permissions.
+- **Subscription:** `AZURE_SUBSCRIPTION_ID` selects the target subscription.
+- **Admin password:** `parameters.json` sets `adminPassword` to `null` as a placeholder. The `adminPassword=...` override on the `parameters` line injects `VM_ADMIN_PASSWORD` at deploy time, so the real password never appears in the repository. The template declares it as a `SecureString`.
+- **Masking:** GitHub masks secret values in logs, and does not pass secrets to workflows triggered from forked pull requests.
+
+### Rotating or revoking credentials
+
+- **Rotate:** run `az ad sp credential reset --id <clientId>`, then update `AZURE_CREDENTIALS` with the new `clientSecret`.
+- **Revoke:** run `az ad sp delete --id <clientId>` and remove the three GitHub secrets.
+- Client secrets expire. An expired secret makes the **Azure Login** step fail; rotate it as above.
+
+### Optional: OIDC (no stored secret)
+
+This repository does not use it, but Azure supports passwordless GitHub-to-Azure authentication with federated credentials. It requires `permissions: id-token: write` in the workflow and `client-id`, `tenant-id`, and `subscription-id` inputs on `azure/login` instead of `creds`.
+
+## Requirements
 
 - An Azure subscription with quota and availability for the selected VM size and resources.
-- A GitHub Actions service principal with permission to deploy resources in the target resource group.
-- The following repository secrets, configured under **Settings → Secrets and variables → Actions**:
+- An existing resource group `RG5`, the workflow's deployment target.
+- The service principal and the three GitHub secrets described above.
 
-| Secret | Description |
-| --- | --- |
-| `AZURE_CREDENTIALS` | Service-principal credential JSON in the format expected by [`azure/login`](https://github.com/Azure/login). |
-| `AZURE_SUBSCRIPTION_ID` | Subscription ID used for the deployment; it must match the service principal's subscription. |
-| `VM_ADMIN_PASSWORD` | Strong password for the Windows administrator account. It is passed to the template at deployment time and is not stored in `parameters.json`. |
-
-Keep credentials and passwords in GitHub Secrets, never in the template, parameters file, logs, or commits. The workflow uses `RG5` as its deployment resource group; ensure it exists and the service principal can deploy there.
+Keep credentials and passwords in GitHub Secrets, never in the template, parameters file, logs, or commits.
 
 ## Deploying
 
