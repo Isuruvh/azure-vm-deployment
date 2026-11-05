@@ -32,7 +32,7 @@ jobs:
       - name: Deploy ARM template
         uses: azure/arm-deploy@v2
         with:
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          subscriptionId: ${{ secrets.subscriptionId }}
           resourceGroupName: RG5
           template: ./template.json
           parameters: ./parameters.json
