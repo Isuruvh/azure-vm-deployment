@@ -165,7 +165,7 @@ The workflow is not triggered by every file. It runs only on pushes to `main` th
 | --- | --- |
 | `parameters.json` | Deploy a VM or change its settings (the normal trigger). |
 | `template.json` | Change the infrastructure definition. |
-| `.github/workflows/deploy.yml` | Change the workflow itself. |
+| `.github/workflows/deploy.yml` | Change the workflow itself. Only this file triggers it; other files in `.github/workflows/` do not. |
 
 Changes to any other file, such as `README.md` or `.gitignore`, do not trigger a deployment.
 
