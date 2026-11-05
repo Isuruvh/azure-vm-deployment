@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -27,5 +27,5 @@ jobs:
         uses: azure/arm-deploy@v2
         with:
           template: ./template.json
-          parameters: ./parameters.json adminPassword=${{ secrets.VM_ADMIN_PASSWORD }}
+          parameters: ./parameters.json
           deploymentName: vm-deploy-${{ github.run_number }}
