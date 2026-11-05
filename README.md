@@ -99,6 +99,41 @@ From `.github/workflows/deploy.yml`:
 - **Admin password:** `parameters.json` sets `adminPassword` to `null` as a placeholder. The `adminPassword=...` override on the `parameters` line injects `VM_ADMIN_PASSWORD` at deploy time, so the real password never appears in the repository. The template declares it as a `SecureString`.
 - **Masking:** GitHub masks secret values in logs, and does not pass secrets to workflows triggered from forked pull requests.
 
+### Direct `az` commands vs. ARM template deployment
+
+Authentication is the same in both cases: `azure/login@v1` signs in once, and later steps reuse that session. What differs is how each approach selects the target and receives secrets.
+
+| | ARM template (this repo) | Direct `az` CLI in the workflow |
+| --- | --- | --- |
+| Step | `azure/arm-deploy@v1` | `run: az ...` (or `azure/cli@v2`) |
+| Defines resources | Declaratively in `template.json` + `parameters.json` | Imperatively, one command per resource (`az vm create`, `az network ...`) |
+| Subscription | `subscriptionId` input (`AZURE_SUBSCRIPTION_ID`) | Login's default subscription, or `--subscription` |
+| Resource group | `resourceGroupName` input | `--resource-group` flag on every command |
+| Admin password | `adminPassword=${{ secrets.VM_ADMIN_PASSWORD }}` override on the `parameters` input | `--admin-password "$VM_ADMIN_PASSWORD"` flag |
+| Re-runs | Incremental: updates matching resources, converges on the template | Commands fail or duplicate unless written to be idempotent |
+
+Direct `az` equivalent of the deploy step:
+
+```yaml
+- name: Deploy with az CLI
+  env:
+    VM_ADMIN_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
+  run: |
+    az deployment group create \
+      --subscription "${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
+      --resource-group RG5 \
+      --name github-actions-deployment \
+      --template-file template.json \
+      --parameters @parameters.json adminPassword="$VM_ADMIN_PASSWORD"
+```
+
+Notes:
+
+- Do not rely on `azure/arm-deploy` inputs when using `az` directly; each `az` command needs its own subscription and resource group scope.
+- Pass secrets through `env:` and reference them as shell variables rather than interpolating `${{ secrets.* }}` directly into the script, to avoid shell-quoting problems and accidental exposure.
+- If `parameters.json` leaves `adminPassword` as `null`, the override is mandatory in either approach; otherwise the deployment fails.
+- The service principal needs the same `Contributor` access on `RG5` either way.
+
 ### Rotating or revoking credentials
 
 - **Rotate:** run `az ad sp credential reset --id <clientId>`, then update `AZURE_CREDENTIALS` with the new `clientSecret`.
