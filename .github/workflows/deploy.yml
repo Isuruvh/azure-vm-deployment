@@ -34,6 +34,7 @@ jobs:
       - name: Deploy ARM template
         uses: azure/arm-deploy@v2
         with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
           template: ./template.json
           parameters: ./parameters.json
           deploymentName: vm-deploy-${{ github.run_number }}
