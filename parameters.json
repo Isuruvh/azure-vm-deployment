@@ -1,0 +1,140 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "australiaeast"
+        },
+        "subnetName": {
+            "value": "default"
+        },
+        "virtualNetworkName": {
+            "value": "vnet-australiaeast-1"
+        },
+        "publicIpAddressId": {
+            "value": "DC1-ip"
+        },
+        "pipDeleteOption": {
+            "value": "Detach"
+        },
+        "publicIpAddressName": {
+            "value": "DC1-ip"
+        },
+        "publicIpAddressType": {
+            "value": "Static"
+        },
+        "publicIpAddressSku": {
+            "value": "Standard"
+        },
+        "networkInterfaceName": {
+            "value": "dc1533"
+        },
+        "enableAcceleratedNetworking": {
+            "value": true
+        },
+        "networkSecurityGroupName": {
+            "value": "DC1-nsg"
+        },
+        "networkSecurityGroupRules": {
+            "value": []
+        },
+        "virtualMachineName": {
+            "value": "DC1"
+        },
+        "virtualMachineComputerName": {
+            "value": "DC1"
+        },
+        "virtualMachineRG": {
+            "value": "DC1_group"
+        },
+        "virtualMachineSize": {
+            "value": "Standard_D2ads_v6"
+        },
+        "osDiskType": {
+            "value": "Premium_LRS"
+        },
+        "osDiskDeleteOption": {
+            "value": "Delete"
+        },
+        "diskControllerType": {
+            "value": "NVMe"
+        },
+        "nicDeleteOption": {
+            "value": "Detach"
+        },
+        "securityType": {
+            "value": "Standard"
+        },
+        "adminUsername": {
+            "value": "azureadmin"
+        },
+        "adminPassword": {
+            "value": null
+        },
+        "patchMode": {
+            "value": "AutomaticByPlatform"
+        },
+        "enablePeriodicAssessment": {
+            "value": "ImageDefault"
+        },
+        "enableHotpatching": {
+            "value": true
+        },
+        "rebootSetting": {
+            "value": "IfRequired"
+        },
+        "hibernationEnabled": {
+            "value": false
+        },
+        "vnetLocation": {
+            "value": "australiaeast"
+        },
+        "vnetExtendedLocation": {
+            "value": {}
+        },
+        "vnetVirtualNetworkName": {
+            "value": "vnet-australiaeast-1"
+        },
+        "vnetTagsByResource": {
+            "value": {}
+        },
+        "vnetProperties": {
+            "value": {
+                "subnets": [
+                    {
+                        "name": "default",
+                        "properties": {
+                            "addressPrefixes": [
+                                "10.0.0.0/24"
+                            ],
+                            "ipamPoolPrefixAllocations": []
+                        }
+                    }
+                ],
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                }
+            }
+        },
+        "vnetNatGatewaysWithNewPublicIpAddress": {
+            "value": []
+        },
+        "vnetNatGatewaysWithoutNewPublicIpAddress": {
+            "value": []
+        },
+        "vnetNatGatewayPublicIpAddressesNewNames": {
+            "value": []
+        },
+        "vnetNetworkSecurityGroupsNew": {
+            "value": []
+        },
+        "vnetResourceGroupName": {
+            "value": "DC1_group"
+        },
+        "vnetDeploymentName": {
+            "value": "vnetaustraliaeastTemplateDeployment1793870546656"
+        }
+    }
+}
