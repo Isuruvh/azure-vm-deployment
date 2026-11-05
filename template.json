@@ -149,7 +149,7 @@
     },
     "variables": {
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', \n            parameters('virtualNetworkName'))]",
-        "subnetRef": "[concat('/subscriptions/7213a958-80d0-4a44-97a0-d0b8c0ed65ce/resourceGroups/DC1_group/providers/Microsoft.Network/virtualNetworks/vnet-australiaeast-1', '/subnets/', parameters('subnetName'))]",
+        "subnetRef": "[concat('/subscriptions/7213a958-80d0-4a44-97a0-d0b8c0ed65ce/resourceGroups/RG5/providers/Microsoft.Network/virtualNetworks/vnet-australiaeast-1', '/subnets/', parameters('subnetName'))]",
         "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]",
         "standardSku": {
             "name": "Standard"
