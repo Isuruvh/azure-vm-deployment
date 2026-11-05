@@ -22,6 +22,14 @@ jobs:
           client-id: ${{ secrets.clientId }}
           tenant-id: ${{ secrets.tenantId }}
           subscription-id: ${{ secrets.subscriptionId }}
+          client-secret: ${{ secrets.clientSecret }}
+
+      - name: Run Azure CLI command
+        uses: Azure/CLI@v1
+        with:
+          inlineScript: |
+            az account show
+            az group list
 
            
       - name: Deploy ARM template
