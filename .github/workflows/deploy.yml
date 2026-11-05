@@ -7,15 +7,8 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      resource-group:
-        description: Target resource group 
-        required: true
-        default: RG5
+    
 
-permissions:
-  id-token: write
-  contents: read
 
 jobs:
   deploy:
@@ -23,10 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 'Azure Login'
+      - name: Azure Login
         uses: azure/login@v3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.clientId }}
+          tenant-id: ${{ secrets.tenantId }}
+          subscription-id: ${{ secrets.subscriptionId }}
+
            
       - name: Deploy ARM template
         uses: azure/arm-deploy@v2
