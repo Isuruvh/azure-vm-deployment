@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - template.json
-      - parameter.json 
+      - parameters.json 
       - .github/workflows/deploy.yml
 
 jobs:
