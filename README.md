@@ -33,6 +33,12 @@ Keep credentials and passwords in GitHub Secrets, never in the template, paramet
 
 The workflow runs on pushes to `main` that change `template.json`, `parameters.json`, or `.github/workflows/deploy.yml`. It does not run for README-only changes. Its Azure deployment name is `github-actions-deployment`, and it uses ARM incremental mode. Incremental mode may update resources with matching names, but it does not delete resources omitted from a deployment. Changing resource names can leave the prior resources in place and create additional ones.
 
+### Successful deployment example
+
+The [latest successful run](https://github.com/Isuruvh/azure-vm-deployment/actions/runs/42112078174) completed both the Azure login and ARM deployment steps. At that run's commit (`9a25d92`), the example configuration deployed VM `FS1` (`Standard_D2ads_v6`) in `australiaeast`, using VNet `vnet-australiaeast-1`, subnet `default`, and resource group `RG5`. The workflow used `azure/login@v1` and `azure/arm-deploy@v1`, passing `VM_ADMIN_PASSWORD` as the secure `adminPassword` parameter.
+
+That successful run predates the path-filter correction: its workflow watched `parameter.json` (singular). The current workflow on `main` watches `parameters.json` (plural), matching the file passed to the ARM deployment step. Thus the run demonstrates a successful deployment configuration, while the corrected workflow path is the one to use for future parameter-only pushes.
+
 ## Configuration reference
 
 Values in `parameters.json` use the shape `"parameterName": { "value": ... }`. Keep parameter names and JSON types compatible with `template.json`. The current file's values are examples for the deployed configuration; change names and settings deliberately to avoid collisions or unintended changes to existing resources.
