@@ -159,7 +159,17 @@ Keep credentials and passwords in GitHub Secrets, never in the template, paramet
 3. If GitHub Actions is disabled for the repository, enable it under the repository's **Actions** settings. Disabled Actions will not run a deployment; a push made while disabled is not automatically deployed when Actions is later re-enabled.
 4. Open **Actions**, select **Deploy ARM Template final**, and inspect the run and its deployment step.
 
-The workflow runs on pushes to `main` that change `template.json`, `parameters.json`, or `.github/workflows/deploy.yml`. It does not run for README-only changes. Its Azure deployment name is `github-actions-deployment`, and it uses ARM incremental mode. Incremental mode may update resources with matching names, but it does not delete resources omitted from a deployment. Changing resource names can leave the prior resources in place and create additional ones.
+The workflow is not triggered by every file. It runs only on pushes to `main` that change one of these three paths (the `paths:` filter in the workflow):
+
+| Path | Typical use |
+| --- | --- |
+| `parameters.json` | Deploy a VM or change its settings (the normal trigger). |
+| `template.json` | Change the infrastructure definition. |
+| `.github/workflows/deploy.yml` | Change the workflow itself. |
+
+Changes to any other file, such as `README.md` or `.gitignore`, do not trigger a deployment.
+
+The workflow's Azure deployment name is `github-actions-deployment`, and it uses ARM incremental mode. Incremental mode may update resources with matching names, but it does not delete resources omitted from a deployment. Changing resource names can leave the prior resources in place and create additional ones.
 
 ### Deploying a new VM
 
