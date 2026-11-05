@@ -1,47 +1,31 @@
+name: Deploy ARM Template
+
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
-    
+    paths:
+      - template.json
+      - parameter.json
+      - .github/workflows/deploy.yml
 
 jobs:
   deploy:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Azure Login
-        uses: azure/login@v3
+        uses: azure/login@v1
         with:
-          client-id: ${{ secrets.clientId }}
-          tenant-id: ${{ secrets.tenantId }}
-          subscription-id: ${{ secrets.subscriptionId }}
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          enable-AzPSSession: false
 
-      - name: Run Azure CLI command
-        uses: Azure/CLI@v1
+      - name: Deploy ARM Template
+        uses: azure/arm-deploy@v1
         with:
-          inlineScript: |
-            az account show
-            az group list
-            
-      - name: Deploy ARM template
-        run: |
-          az deployment group create \
-            --resource-group RG5 \
-            --template-file ./template.json \
-            --parameters ./parameters.json
-           
-      - name: Deploy ARM template
-        uses: azure/arm-deploy@v2
-        with:
-          subscriptionId: ${{ secrets.subscriptionId }}
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: RG5
-          template: ./template.json
-          parameters: ./parameters.json
-          deploymentName: vm-deploy-${{ github.run_number }}
+          template: ../template.json
+          parameters: ../parameters.json
+          deploymentName: github-actions-deployment
