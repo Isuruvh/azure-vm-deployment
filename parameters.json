@@ -45,7 +45,7 @@
             "value": "FS1"
         },
         "virtualMachineRG": {
-            "value": "DC1_group"
+            "value": "RG5"
         },
         "virtualMachineSize": {
             "value": "Standard_D2ads_v6"
