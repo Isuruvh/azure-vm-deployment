@@ -26,6 +26,6 @@ jobs:
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: RG5
-          template: ../template.json
-          parameters: ../parameters.json
+          template: ./template.json
+          parameters: ./parameters.json
           deploymentName: github-actions-deployment
