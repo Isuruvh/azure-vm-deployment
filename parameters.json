@@ -12,13 +12,13 @@
             "value": "vnet-australiaeast-1"
         },
         "publicIpAddressId": {
-            "value": "FS1-ip"
+            "value": "DC1-ip"
         },
         "pipDeleteOption": {
             "value": "Detach"
         },
         "publicIpAddressName": {
-            "value": "FS1-ip"
+            "value": "DC1-ip"
         },
         "publicIpAddressType": {
             "value": "Static"
@@ -27,22 +27,22 @@
             "value": "Standard"
         },
         "networkInterfaceName": {
-            "value": "FS1533"
+            "value": "DC1533"
         },
         "enableAcceleratedNetworking": {
             "value": true
         },
         "networkSecurityGroupName": {
-            "value": "FS1-nsg"
+            "value": "DC1-nsg"
         },
         "networkSecurityGroupRules": {
             "value": []
         },
         "virtualMachineName": {
-            "value": "FS1"
+            "value": "DC1"
         },
         "virtualMachineComputerName": {
-            "value": "FS1"
+            "value": "DC1"
         },
         "virtualMachineRG": {
             "value": "RG5"
